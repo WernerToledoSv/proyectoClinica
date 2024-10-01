@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "994x4R4Mh1GvTuDia6iQbL9VaA+nBZm/rn5UUgDNBnk=",
+  "Source": "ClinicaWebApi",
+  "BasePath": "_content/ClinicaWebApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

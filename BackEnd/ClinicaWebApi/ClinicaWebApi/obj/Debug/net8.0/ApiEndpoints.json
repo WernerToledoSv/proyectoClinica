@@ -1,0 +1,28 @@
+[
+  {
+    "ContainingType": "ClinicaWebApi.Controllers.lugarController",
+    "Method": "GetLugar",
+    "RelativePath": "api/v1/lugar",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ClinicaWebApi.Controllers.lugarController",
+    "Method": "GetLugarById",
+    "RelativePath": "api/v1/lugar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "_lugar",
+        "Type": "ClinicaWebApi.Models.lugar",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
