@@ -272,7 +272,229 @@ $$ LANGUAGE plpgsql;
 --probar
 --select func_medicamento_buscarnombre('Asp');
 
+
+
+
+
+
 --CRUD para medicamento
+-- Carlos_Rodriguez_TablaUsers --
+--Funcion Agregar usuario--
+CREATE OR REPLACE FUNCTION func_usuario_insert (
+    p_idrol INT,
+    p_idlugar INT,
+    p_username VARCHAR,
+    p_password TEXT,
+    p_nombres VARCHAR,
+    p_apellidos VARCHAR,
+    p_sexo ty_sexo,
+    p_cel VARCHAR,
+    p_email VARCHAR,
+    p_fechaingreso DATE
+) RETURNS usuario AS $$
+DECLARE 
+    nuevo_usuario usuario;
+BEGIN
+    INSERT INTO usuario (idrol, idlugar, username, password, nombres, apellidos, sexo, cel, email, fechaingreso)
+    VALUES (p_idrol, p_idlugar, p_username, p_password, p_nombres, p_apellidos, p_sexo, p_cel, p_email, p_fechaingreso)
+    RETURNING * INTO nuevo_usuario;
+    
+    RETURN nuevo_usuario;
+END;
+$$ LANGUAGE plpgsql;
+--Funcion agregar usuario--
+
+--Funcion leer todos los usuarios--
+CREATE OR REPLACE FUNCTION func_leer_todos_usuarios()
+RETURNS SETOF usuario AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM usuario;
+END;
+$$ LANGUAGE plpgsql;
+
+-- prueba --
+-- SELECT * FROM func_leer_todos_usuarios();--
+
+--funcion leer usuario por ID--
+
+CREATE OR REPLACE FUNCTION func_leer_usuario_por_id(p_id INT)
+RETURNS usuario AS $$
+DECLARE
+    usuario_encontrado usuario;
+BEGIN
+    SELECT *
+    INTO usuario_encontrado
+    FROM usuario
+    WHERE id = p_id;
+
+    RETURN usuario_encontrado;
+END;
+$$ LANGUAGE plpgsql;
+
+-- prueba--
+-- SELECT * FROM func_leer_usuario_por_id(1); --
+
+--Funcion Actualizar usuario--
+CREATE OR REPLACE FUNCTION func_actualizar_usuario(
+    p_id INT,
+    p_idrol INT,
+    p_idlugar INT,
+    p_username VARCHAR,
+    p_password TEXT,
+    p_nombres VARCHAR,
+    p_apellidos VARCHAR,
+    p_sexo ty_sexo,
+    p_cel VARCHAR,
+    p_email VARCHAR,
+    p_fechaingreso DATE,
+    p_estado est_users
+) RETURNS usuario AS $$
+DECLARE
+    usuario_actualizado usuario;
+BEGIN
+    UPDATE usuario
+    SET idrol = p_idrol,
+        idlugar = p_idlugar,
+        username = p_username,
+        password = p_password,
+        nombres = p_nombres,
+        apellidos = p_apellidos,
+        sexo = p_sexo,
+        cel = p_cel,
+        email = p_email,
+        fechaingreso = p_fechaingreso,
+        estado = p_estado
+    WHERE id = p_id
+    RETURNING * INTO usuario_actualizado;
+
+    RETURN usuario_actualizado;
+END;
+$$ LANGUAGE plpgsql;
+-- prueba -- 
+/* SELECT * FROM func_actualizar_usuario(
+    1, -- ID del usuario
+    2, -- Nuevo idrol
+    3, -- Nuevo idlugar
+    'new_username', -- Nuevo username
+    'new_password', -- Nueva password
+    'Nuevo Nombre', -- Nuevos nombres
+    'Nuevo Apellido', -- Nuevos apellidos
+    'M', -- Nuevo sexo
+    '123456789', -- Nuevo número de celular
+    'nuevoemail@example.com', -- Nuevo email
+    '2024-01-01', -- Nueva fecha de ingreso
+    'activo' -- Nuevo estado
+); */
+
+-- Funcion Elimimnar usuario --
+CREATE OR REPLACE FUNCTION func_eliminar_usuario(p_id INT)
+RETURNS VOID AS $$
+BEGIN
+    DELETE FROM usuario
+    WHERE id = p_id;
+END;
+$$ LANGUAGE plpgsql;
+-- prueba --
+-- SELECT func_eliminar_usuario(1); --
+
+-- Funcion buscar usuario por nombre--
+CREATE OR REPLACE FUNCTION func_buscar_usuario_por_nombres(p_nombres VARCHAR)
+RETURNS SETOF usuario AS $$
+BEGIN
+    RETURN QUERY
+    SELECT *
+    FROM usuario
+    WHERE nombres ILIKE '%' || p_nombres || '%';
+END;
+$$ LANGUAGE plpgsql;
+-- prueba --
+-- SELECT * FROM func_buscar_usuario_por_nombres('Juan'); --
+-- Carlos_Rodriguez_TablaUsers --
+
+
+
+--Carlos_Rodriguez_TablaRol--
+--Funcion agregar rol--
+CREATE OR REPLACE FUNCTION crear_rol(p_nombre VARCHAR, p_descripcion TEXT)
+RETURNS VOID AS $$
+BEGIN
+    INSERT INTO rol (nombre, descripcion)
+    VALUES (p_nombre, p_descripcion);
+END;
+$$ LANGUAGE plpgsql;
+--prueba--
+--SELECT crear_rol('Admin', 'Administrador del sistema');--
+
+--funcion leer rol--
+CREATE OR REPLACE FUNCTION leer_rol_por_id(p_id INT)
+RETURNS TABLE(id INT, nombre VARCHAR, descripcion TEXT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT rol.id, rol.nombre, rol.descripcion
+    FROM rol
+    WHERE rol.id = p_id;
+END;
+$$ LANGUAGE plpgsql;
+--prueba--
+--SELECT * FROM leer_rol_por_id(1);--
+
+
+--funcion leer todos los roles--
+CREATE OR REPLACE FUNCTION leer_todos_roles()
+RETURNS TABLE(id INT, nombre VARCHAR, descripcion TEXT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT rol.id, rol.nombre, rol.descripcion
+    FROM rol;
+END;
+$$ LANGUAGE plpgsql;
+--prubea--
+--SELECT * FROM leer_todos_roles();--
+
+--funcion actualizar rol--
+CREATE OR REPLACE FUNCTION actualizar_rol(p_id INT, p_nombre VARCHAR, p_descripcion TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE rol
+    SET nombre = p_nombre,
+        descripcion = p_descripcion
+    WHERE id = p_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--prueba--
+--SELECT actualizar_rol(1, 'Super Admin', 'Administrador Principal del Sistema');--
+
+--funcion eliminar rol--
+CREATE OR REPLACE FUNCTION eliminar_rol(p_id INT)
+RETURNS VOID AS $$
+BEGIN
+    DELETE FROM rol
+    WHERE id = p_id;
+END;
+$$ LANGUAGE plpgsql;
+--prueba--
+--SELECT eliminar_rol(1);--
+
+--funcion buscar rol por nombre--
+CREATE OR REPLACE FUNCTION buscar_rol_por_nombre(p_nombre VARCHAR)
+RETURNS TABLE(id INT, nombre VARCHAR, descripcion TEXT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT rol.id, rol.nombre, rol.descripcion
+    FROM rol
+    WHERE rol.nombre ILIKE '%' || p_nombre || '%';
+END;
+$$ LANGUAGE plpgsql;
+
+--prueba--
+--SELECT * FROM buscar_rol_por_nombre('Admin');--
+--Carlos Rodriguez tabla rol--
+
+
+
+
 
 
 
