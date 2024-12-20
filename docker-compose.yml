@@ -1,10 +1,11 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   db:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: clinica-container
+    image: clinica-db:latest
+    container_name: clinicadb-container
     ports:
       - "5432:5432"

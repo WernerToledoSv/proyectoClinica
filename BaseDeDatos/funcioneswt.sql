@@ -416,19 +416,24 @@ $$ LANGUAGE plpgsql;
 
 --Carlos_Rodriguez_TablaRol--
 --Funcion agregar rol--
-CREATE OR REPLACE FUNCTION crear_rol(p_nombre VARCHAR, p_descripcion TEXT)
-RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION func_crear_rol(p_nombre VARCHAR, p_descripcion text)
+ 	RETURNS rol AS $$
+	declare
+		rol_ingresado rol;
 BEGIN
-    INSERT INTO rol (nombre, descripcion)
-    VALUES (p_nombre, p_descripcion);
+    INSERT INTO rol(nombre, descripcion)
+    VALUES (p_nombre, p_descripcion)
+    returning * into rol_ingresado;
+    return rol_ingresado;
 END;
 $$ LANGUAGE plpgsql;
+
 --prueba--
---SELECT crear_rol('Admin', 'Administrador del sistema');--
+--SELECT func_crear_rol('Admin', 'Administrador del sistema');--
 
 --funcion leer rol--
-CREATE OR REPLACE FUNCTION leer_rol_por_id(p_id INT)
-RETURNS TABLE(id INT, nombre VARCHAR, descripcion TEXT) AS $$
+CREATE OR REPLACE FUNCTION func_leer_rol_por_id(p_id INT)
+RETURNS setof rol AS $$
 BEGIN
     RETURN QUERY 
     SELECT rol.id, rol.nombre, rol.descripcion
@@ -436,60 +441,75 @@ BEGIN
     WHERE rol.id = p_id;
 END;
 $$ LANGUAGE plpgsql;
+
 --prueba--
---SELECT * FROM leer_rol_por_id(1);--
+--SELECT * FROM func_leer_rol_por_id(1);--
 
 
 --funcion leer todos los roles--
-CREATE OR REPLACE FUNCTION leer_todos_roles()
-RETURNS TABLE(id INT, nombre VARCHAR, descripcion TEXT) AS $$
+CREATE OR REPLACE FUNCTION func_leer_todos_roles()
+returns setof rol AS $$
 BEGIN
     RETURN QUERY 
     SELECT rol.id, rol.nombre, rol.descripcion
     FROM rol;
 END;
 $$ LANGUAGE plpgsql;
+
 --prubea--
---SELECT * FROM leer_todos_roles();--
+--SELECT * FROM func_leer_todos_roles();--
 
 --funcion actualizar rol--
-CREATE OR REPLACE FUNCTION actualizar_rol(p_id INT, p_nombre VARCHAR, p_descripcion TEXT)
-RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION public.func_actualizar_rol(p_id integer, p_nombre character varying, p_descripcion text)
+ RETURNS rol
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	rol_actualizado rol;
 BEGIN
     UPDATE rol
     SET nombre = p_nombre,
         descripcion = p_descripcion
-    WHERE id = p_id;
+    WHERE id = p_id
+	RETURNING * INTO rol_actualizado;
+
+    RETURN rol_actualizado;
 END;
-$$ LANGUAGE plpgsql;
+$function$
+;
 
 --prueba--
---SELECT actualizar_rol(1, 'Super Admin', 'Administrador Principal del Sistema');--
+--SELECT func_actualizar_rol(1, 'Super Admin', 'Administrador Principal del Sistema');--
 
 --funcion eliminar rol--
-CREATE OR REPLACE FUNCTION eliminar_rol(p_id INT)
-RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION func_eliminar_rol(p_id INT)
+RETURNS rol AS $$
+DECLARE 
+	rol_eliminado rol;
 BEGIN
     DELETE FROM rol
-    WHERE id = p_id;
+    WHERE id = p_id
+ 	RETURNING * INTO rol_eliminado;
+	RETURN rol_eliminado;
 END;
 $$ LANGUAGE plpgsql;
+
 --prueba--
 --SELECT eliminar_rol(1);--
 
 --funcion buscar rol por nombre--
-CREATE OR REPLACE FUNCTION buscar_rol_por_nombre(p_nombre VARCHAR)
-RETURNS TABLE(id INT, nombre VARCHAR, descripcion TEXT) AS $$
+CREATE OR REPLACE FUNCTION func_buscar_rol_por_nombre(p_nombre VARCHAR)
+returns SETOF rol AS $$
 BEGIN
     RETURN QUERY 
-    SELECT rol.id, rol.nombre, rol.descripcion
+    SELECT *
     FROM rol
     WHERE rol.nombre ILIKE '%' || p_nombre || '%';
 END;
 $$ LANGUAGE plpgsql;
 
 --prueba--
---SELECT * FROM buscar_rol_por_nombre('Admin');--
+--SELECT * FROM func_buscar_rol_por_nombre('Admin');--
 --Carlos Rodriguez tabla rol--
 
 
